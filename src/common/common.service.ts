@@ -26,7 +26,11 @@ export class CommonService {
    * @returns The response
    */
   async fetchData(url: string): Promise<AxiosResponse> {
-    const response = await this.httpService.axiosRef.get(url);
+    const response = await this.httpService.axiosRef.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+      },
+    });
 
     if (response.status !== 200) {
       throw new Error('Failed to fetch data');
