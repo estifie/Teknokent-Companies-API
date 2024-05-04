@@ -7,7 +7,7 @@ export const PROVIDERS = [
     cityId: 6,
     email: 'tgb_ankaraodtu@odtuteknokent.com.tr',
     phone: '(312) 987 35 00',
-    address: 'ODTÜ TEKNOKENT İKİZLER BİNASI B BLOK NO:ZK-1 ÇANKAYA/ANKARA',
+    address: 'ODTÜ TEKNOKENT İKİZLER BİNASI B BLOK NO:ZK-1 Çankaya/Ankara',
   },
   {
     code: 'hacettepe',
@@ -17,7 +17,7 @@ export const PROVIDERS = [
     cityId: 6,
     email: 'tgb_ankarahacettepe@hacettepeteknokent.com.tr',
     phone: '(312) 297 71 62',
-    address: 'Hacettepe Üniversitesi Beytepe Kampusü Hacettepe Teknokent 1.Ar-Ge Binası 06800 Beytepe / ANKARA',
+    address: 'Hacettepe Üniversitesi Beytepe Kampusü Hacettepe Teknokent 1.Ar-Ge Binası 06800 Beytepe/Ankara',
   },
   {
     code: 'ankarauniversity',
@@ -37,6 +37,16 @@ export const PROVIDERS = [
     cityId: 6,
     email: 'bilgi@teknoparkankara.com.tr',
     phone: '(312) 395 62 27',
-    address: 'Ankara Teknopark TGB Yerleşkesi İvedik Osb Mh. 2224. Cd No:1 Yenimahalle / Ankara',
+    address: 'Ankara Teknopark TGB Yerleşkesi İvedik Osb Mh. 2224. Cd No:1 Yenimahalle/Ankara',
+  },
+  {
+    code: 'asoteknopark',
+    website: 'https://www.asoteknopark.com.tr/?page_id=1606',
+    shortTitle: 'ASO Teknopark',
+    fullTitle: 'ASO Teknopark Teknoloji Geliştirme Bölgesi',
+    cityId: 6,
+    email: 'tgb_ankaraasoteknopark@asoteknopark.com.tr',
+    phone: '(550) 006 40 00',
+    address: '	Ahi Evran Osb Mah. Erkunt Cad. No: 1/2 Sincan/Ankara',
   },
 ];

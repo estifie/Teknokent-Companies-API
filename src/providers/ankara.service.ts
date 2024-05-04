@@ -1,4 +1,3 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { Provider } from '@prisma/client';
 import { AxiosResponse } from 'axios';
@@ -8,7 +7,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CommonService } from '../common/common.service';
 import { Sector, getSector } from '../common/constants/sectors';
 import { Company } from '../common/interfaces';
-import { CompanyService } from '../company/company.service';
 
 @Injectable()
 export class OdtuService {
@@ -29,7 +27,7 @@ export class OdtuService {
       this.provider = await this.commonService.getProviderByCode('odtu');
       const response = await this.commonService.fetchData(this.provider.website);
       this.rootHtml = cheerio.load(response.data);
-      return this.getCompanies();
+      return await this.getCompanies();
     } catch (error) {
       throw error;
     }
@@ -99,7 +97,7 @@ export class HacettepeService {
       this.provider = await this.commonService.getProviderByCode('hacettepe');
       const response = await this.commonService.fetchData(this.provider.website + '/tr/firma_rehberi');
       this.rootHtml = cheerio.load(response.data);
-      return this.getCompanies();
+      return await this.getCompanies();
     } catch (error) {
       throw error;
     }
@@ -239,7 +237,7 @@ export class AnkaraUniversityService {
       this.provider = await this.commonService.getProviderByCode('ankarauniversity');
       const response = await this.commonService.fetchData(this.provider.website);
       this.rootHtml = cheerio.load(response.data);
-      return this.getCompanies();
+      return await this.getCompanies();
     } catch (error) {
       throw error;
     }
@@ -356,7 +354,7 @@ export class TeknoparkAnkaraService {
       this.provider = await this.commonService.getProviderByCode('teknoparkankara');
       const response = await this.commonService.fetchData(this.provider.website);
       this.rootHtml = cheerio.load(response.data);
-      return this.getCompanies();
+      return await this.getCompanies();
     } catch (error) {
       throw error;
     }
@@ -422,6 +420,107 @@ export class TeknoparkAnkaraService {
       contact: {
         address: undefined,
         email: undefined,
+        phone: phone,
+      },
+      details: {
+        sector: getSector(sector),
+      },
+    };
+
+    return company;
+  }
+}
+
+@Injectable()
+export class AsoTeknoparkService {
+  private rootHtml: cheerio.CheerioAPI;
+  private provider: Provider;
+
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly commonService: CommonService,
+  ) {}
+
+  /**
+   * Scrapes the companies and saves them to the database
+   * @returns The number of created and updated companies
+   */
+  async scrapeCompanies(): Promise<[number, number]> {
+    try {
+      this.provider = await this.commonService.getProviderByCode('aso');
+      const response = await this.commonService.fetchData(this.provider.website);
+      this.rootHtml = cheerio.load(response.data);
+      return await this.getCompanies();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Gets the companies
+   * @returns The number of created companies
+   */
+  async getCompanies(): Promise<[number, number]> {
+    let createdCompanies: number = 0;
+    let updatedCompanies: number = 0;
+
+    const existingCompanies = await this.prismaService.company.findMany();
+
+    const companies = await this.parseCompanies();
+
+    for (const company of companies) {
+      if (!existingCompanies.find((c) => c.name === company.name)) {
+        await this.commonService.createCompany(company, this.provider);
+        createdCompanies++;
+      } else {
+        const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
+        if (isUpdated) updatedCompanies++;
+      }
+    }
+
+    return [createdCompanies, updatedCompanies];
+  }
+
+  /**
+   * Parses the companies
+   * @returns The companies
+   */
+  async parseCompanies(): Promise<Company[]> {
+    const companies: Company[] = [];
+    const companiesTable = this.rootHtml('div.entry-content table tbody tr');
+
+    const parsePromises = companiesTable.map(async (index, companyData) => {
+      if (index === 0) return;
+
+      return await this.parseCompany(companyData);
+    });
+
+    const parsedCompanies = await Promise.all(parsePromises);
+
+    companies.push(...parsedCompanies);
+
+    return companies;
+  }
+
+  /**
+   * Parses the company
+   * @returns The company
+   */
+  async parseCompany(companyData: cheerio.Element): Promise<Company> {
+    const fields = this.rootHtml(companyData).find('td');
+
+    const name = this.rootHtml(fields[0]).text().trim();
+    const sector = this.rootHtml(fields[1]).text().trim();
+    const email = this.rootHtml(fields[2]).text().trim();
+    const website = this.rootHtml(fields[3]).text().trim();
+    const phone = this.rootHtml(fields[4]).text().trim();
+
+    const company: Company = {
+      name: name,
+      website: website,
+      contact: {
+        address: undefined,
+        email: email,
         phone: phone,
       },
       details: {
