@@ -1,4 +1,5 @@
 import { Body, ConflictException, Controller, InternalServerErrorException, NotFoundException, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
 import { Response } from '../common/interfaces';
 import { UserCreateDto, UserLoginDto, UserResponseDto } from '../dto';
 import { UserAuthenticationException, UserCreationException, UserNotFoundException } from '../exceptions';
@@ -25,9 +26,21 @@ export class AuthController {
    * @throws `InternalServerErrorException` for any other internal server errors.
    */
   @Post('/login')
+  // Write swagger example request and response
+  @ApiBody({
+    type: UserLoginDto,
+    examples: {
+      admin: {
+        value: {
+          username: 'admin',
+          password: 'admin',
+        },
+      },
+    },
+  })
   async login(@Body() userLoginDto: UserLoginDto): Promise<UserResponseDto> {
     try {
-      return this.authService.login(userLoginDto);
+      return await this.authService.login(userLoginDto);
     } catch (error) {
       const response: Response = {
         status: 'error',
@@ -62,7 +75,7 @@ export class AuthController {
   @UseGuards(RoleGuard)
   async createUser(@Body() userCreateDto: UserCreateDto): Promise<UserResponseDto> {
     try {
-      return this.authService.createUser(userCreateDto);
+      return await this.authService.createUser(userCreateDto);
     } catch (error) {
       const response: Response = {
         status: 'error',

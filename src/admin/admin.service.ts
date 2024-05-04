@@ -109,7 +109,7 @@ export class AdminService {
    * Retrieves all providers.
    */
   async getProviders(): Promise<Provider[]> {
-    return this.prismaService.provider.findMany();
+    return await this.prismaService.provider.findMany();
   }
 
   /**
@@ -120,7 +120,7 @@ export class AdminService {
       throw new ProviderNotFoundException();
     }
 
-    return this.prismaService.provider.findUnique({
+    return await this.prismaService.provider.findUnique({
       where: {
         code: providerCode,
       },

@@ -32,7 +32,7 @@ export class AdminController {
   @UseGuards(RoleGuard)
   async createProvider(@Body() providerCreateDto: ProviderCreateDto): Promise<Provider> {
     try {
-      return this.adminService.createProvider(providerCreateDto);
+      return await this.adminService.createProvider(providerCreateDto);
     } catch (error) {
       const response: Response = {
         status: 'error',
@@ -65,7 +65,7 @@ export class AdminController {
   @UseGuards(RoleGuard)
   async removeProvider(@Query('providerCode') providerCode: string): Promise<any> {
     try {
-      return this.adminService.removeProvider(providerCode);
+      return await this.adminService.removeProvider(providerCode);
     } catch (error) {
       const response: Response = {
         status: 'error',
@@ -98,7 +98,7 @@ export class AdminController {
   @UseGuards(RoleGuard)
   async getProviders(): Promise<Provider[]> {
     try {
-      return this.adminService.getProviders();
+      return await this.adminService.getProviders();
     } catch (error) {
       throw new InternalServerErrorException();
     }
@@ -119,7 +119,7 @@ export class AdminController {
   @UseGuards(RoleGuard)
   async getProvider(@Param('providerCode') providerCode: string): Promise<Provider> {
     try {
-      return this.adminService.getProvider(providerCode);
+      return await this.adminService.getProvider(providerCode);
     } catch (error) {
       const response: Response = {
         status: 'error',
@@ -153,7 +153,7 @@ export class AdminController {
   @UseGuards(RoleGuard)
   async updateProvider(@Param('providerCode') providerCode: string, @Body() providerUpdateDto: ProviderUpdateDto): Promise<Provider> {
     try {
-      return this.adminService.updateProvider(providerCode, providerUpdateDto);
+      return await this.adminService.updateProvider(providerCode, providerUpdateDto);
     } catch (error) {
       const response: Response = {
         status: 'error',
@@ -190,7 +190,7 @@ export class AdminController {
   @UseGuards(RoleGuard)
   async setProviderStatus(@Param('providerCode') providerCode: string, @Body() providerSetStatusDto: ProviderSetStatusDto): Promise<Provider> {
     try {
-      return this.adminService.setProviderStatus(providerCode, providerSetStatusDto);
+      return await this.adminService.setProviderStatus(providerCode, providerSetStatusDto);
     } catch (error) {
       const response: Response = {
         status: 'error',
