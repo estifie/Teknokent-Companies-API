@@ -3,11 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { prisma } from '../../prisma/prisma.service';
 import { UserCreateDto, UserLoginDto, UserResponseDto } from '../dto';
-import {
-  UserAuthenticationException,
-  UserCreationException,
-  UserNotFoundException,
-} from '../exceptions';
+import { UserAuthenticationException, UserCreationException, UserNotFoundException } from '../exceptions';
 
 @Injectable()
 export class AuthService {
@@ -24,10 +20,7 @@ export class AuthService {
       throw new UserNotFoundException();
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      userLoginDto.password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(userLoginDto.password, user.password);
 
     if (!isPasswordValid) {
       throw new UserAuthenticationException('Invalid credentials');
@@ -45,10 +38,7 @@ export class AuthService {
 
   async createUser(userCreateDto: UserCreateDto): Promise<UserResponseDto> {
     const saltOrRounds = 10;
-    const hashedPassword = await bcrypt.hash(
-      userCreateDto.password,
-      saltOrRounds,
-    );
+    const hashedPassword = await bcrypt.hash(userCreateDto.password, saltOrRounds);
 
     const userExists = await prisma.user.findUnique({
       where: {
