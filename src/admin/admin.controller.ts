@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { Provider } from '@prisma/client';
 
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { Response } from '../common/interfaces';
 import { ProviderCreateDto, ProviderSetStatusDto, ProviderUpdateDto } from '../dto';
@@ -30,6 +31,7 @@ export class AdminController {
    */
   @Post('/providers')
   @UseGuards(RoleGuard)
+  @ApiBearerAuth('JWT-auth')
   async createProvider(@Body() providerCreateDto: ProviderCreateDto): Promise<Provider> {
     try {
       return await this.adminService.createProvider(providerCreateDto);
@@ -63,6 +65,7 @@ export class AdminController {
    */
   @Delete('/providers/:providerCode')
   @UseGuards(RoleGuard)
+  @ApiBearerAuth('JWT-auth')
   async removeProvider(@Query('providerCode') providerCode: string): Promise<any> {
     try {
       return await this.adminService.removeProvider(providerCode);
@@ -96,6 +99,7 @@ export class AdminController {
    */
   @Get('/providers')
   @UseGuards(RoleGuard)
+  @ApiBearerAuth('JWT-auth')
   async getProviders(): Promise<Provider[]> {
     try {
       return await this.adminService.getProviders();
@@ -117,6 +121,7 @@ export class AdminController {
    */
   @Get('/providers/:providerCode')
   @UseGuards(RoleGuard)
+  @ApiBearerAuth('JWT-auth')
   async getProvider(@Param('providerCode') providerCode: string): Promise<Provider> {
     try {
       return await this.adminService.getProvider(providerCode);
@@ -151,6 +156,7 @@ export class AdminController {
    */
   @Patch('/providers/:providerCode')
   @UseGuards(RoleGuard)
+  @ApiBearerAuth('JWT-auth')
   async updateProvider(@Param('providerCode') providerCode: string, @Body() providerUpdateDto: ProviderUpdateDto): Promise<Provider> {
     try {
       return await this.adminService.updateProvider(providerCode, providerUpdateDto);
@@ -188,6 +194,7 @@ export class AdminController {
    */
   @Post('/providers/:providerCode/status')
   @UseGuards(RoleGuard)
+  @ApiBearerAuth('JWT-auth')
   async setProviderStatus(@Param('providerCode') providerCode: string, @Body() providerSetStatusDto: ProviderSetStatusDto): Promise<Provider> {
     try {
       return await this.adminService.setProviderStatus(providerCode, providerSetStatusDto);

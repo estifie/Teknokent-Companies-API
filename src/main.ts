@@ -24,6 +24,16 @@ async function bootstrap() {
     .setTitle('Teknokent Companies API')
     .setDescription('Teknokent Companies API for scraping and managing companies in teknokents')
     .setVersion(documentVersion)
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, documentConfig);
