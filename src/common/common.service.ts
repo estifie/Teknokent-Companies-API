@@ -21,10 +21,6 @@ export class CommonService {
     private companyService: CompanyService,
   ) {}
 
-  /**
-   * Fetches the data
-   * @returns The response
-   */
   async fetchData(url: string): Promise<AxiosResponse> {
     const response = await this.httpService.axiosRef.get(url, {
       headers: {
@@ -39,10 +35,6 @@ export class CommonService {
     return response;
   }
 
-  /**
-   * Gets the provider by code
-   * @returns The provider
-   */
   async getProviderByCode(code: string): Promise<Provider> {
     const provider = await this.prismaService.provider.findUnique({
       where: {
@@ -55,34 +47,14 @@ export class CommonService {
     return provider;
   }
 
-  formatPhoneNumber(phoneNumber: string): string {
-    // Remove all non-numeric characters from the phone number
-    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
-
-    // Check if the cleaned phone number has a valid length
-    const match = cleaned.match(/^(\d{3})(\d{3})(\d{2})(\d{2})$/);
-
-    if (match) {
-      // Format the phone number as (123) 456 78 90
-      return '(' + match[1] + ') ' + match[2] + ' ' + match[3] + ' ' + match[4];
-    }
-
-    // If the phone number doesn't match the expected format, return the original input
-    return phoneNumber;
-  }
-
-  /**
-   * Creates a company with scraped data
-   * @returns The created company
-   */
   async createCompany(company: Company, provider: Provider): Promise<PrismaCompany> {
     try {
       const companyCreateDto: CompanyCreateDto = {
-        name: company.name,
-        website: company.website,
+        name: this.formatName(company.name),
+        website: this.formatWebsiteUrl(company.website),
         address: company.contact.address,
         email: company.contact.email,
-        phone: company.contact.phone,
+        phone: this.formatPhoneNumber(company.contact.phone),
         sector: company.details.sector,
         providerCode: provider.code,
       };
@@ -91,14 +63,10 @@ export class CommonService {
 
       return createdCompany;
     } catch (error) {
-      throw new CompanyCreationException();
+      return null;
     }
   }
 
-  /**
-   * Updates changed fields of a company with scraped data
-   * @returns Whether the company is updated
-   */
   async updateCompany(company: Company, existingCompanies: PrismaCompany[]): Promise<boolean> {
     try {
       let isUpdated: boolean = false;
@@ -128,5 +96,54 @@ export class CommonService {
     } catch (error) {
       throw new CompanyCreationException();
     }
+  }
+
+  formatPhoneNumber(phoneNumber: string): string {
+    // Remove all non-numeric characters from the phone number
+    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+
+    // Check if the cleaned phone number has a valid length
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{2})(\d{2})$/);
+
+    if (match) {
+      // Format the phone number as (123) 456 78 90
+      return '(' + match[1] + ') ' + match[2] + ' ' + match[3] + ' ' + match[4];
+    }
+
+    // If the phone number doesn't match the expected format, return the original input
+    return phoneNumber;
+  }
+
+  formatWebsiteUrl(website: string): string {
+    // input can be xyz.com, www.xyz.com, Xyz.com, http://xyz.com
+    // Turn all of these into https://www.xyz.com
+    if (!website) return website;
+
+    website = website.trim().toLowerCase();
+
+    const hasHttpProtocol = website.startsWith('http://');
+    const hasHttpsProtocol = website.startsWith('https://');
+
+    // Remove protocol if it exists in the URL
+    if (hasHttpProtocol || hasHttpsProtocol) {
+      website = website.replace(/^https?:\/\//, '');
+    }
+
+    // Add www. if it doesn't exist in the URL
+    const hasWww = website.startsWith('www.');
+    if (!hasWww) {
+      website = 'www.' + website;
+    }
+
+    website = 'https://' + website;
+
+    return website;
+  }
+
+  formatName(name: string): string {
+    return name
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 }
