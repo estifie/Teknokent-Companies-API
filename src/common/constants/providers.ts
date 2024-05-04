@@ -47,6 +47,16 @@ export const PROVIDERS = [
     cityId: 6,
     email: 'tgb_ankaraasoteknopark@asoteknopark.com.tr',
     phone: '(550) 006 40 00',
-    address: '	Ahi Evran Osb Mah. Erkunt Cad. No: 1/2 Sincan/Ankara',
+    address: 'Ahi Evran Osb Mah. Erkunt Cad. No: 1/2 Sincan/Ankara',
+  },
+  {
+    code: 'gaziuniversity',
+    website: 'https://api.gaziteknopark.com.tr/Unit/GetUnitByPaginationAll',
+    shortTitle: 'Gazi Teknopark',
+    fullTitle: 'Gazi Teknopark Teknoloji Geliştirme Bölgesi',
+    cityId: 6,
+    email: 'info@gaziteknopark.com.tr',
+    phone: '(312) 484 88 53',
+    address: 'Bahçelievler Mah. 323/1 Cad. Gazi Üniversitesi Teknokent Binası A Blok No: 10/50A/40 06830 Gölbaşı/Ankara',
   },
 ];

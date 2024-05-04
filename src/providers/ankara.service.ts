@@ -66,8 +66,8 @@ export class OdtuService {
       };
 
       if (!existingCompanies.find((c) => c.name === company.name)) {
-        await this.commonService.createCompany(company, this.provider);
-        createdCompanies++;
+        const createdCompany = await this.commonService.createCompany(company, this.provider);
+        if (createdCompany) createdCompanies++;
       } else {
         const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
         if (isUpdated) updatedCompanies++;
@@ -124,8 +124,8 @@ export class HacettepeService {
 
       for (const company of companies) {
         if (!existingCompanies.find((c) => c.name === company.name)) {
-          await this.commonService.createCompany(company, this.provider);
-          createdCompanies++;
+          const createdCompany = await this.commonService.createCompany(company, this.provider);
+          if (createdCompany) createdCompanies++;
         } else {
           const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
           if (isUpdated) updatedCompanies++;
@@ -257,8 +257,8 @@ export class AnkaraUniversityService {
 
     for (const company of companies) {
       if (!existingCompanies.find((c) => c.name === company.name)) {
-        await this.commonService.createCompany(company, this.provider);
-        createdCompanies++;
+        const createdCompany = await this.commonService.createCompany(company, this.provider);
+        if (createdCompany) createdCompanies++;
       } else {
         const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
         if (isUpdated) updatedCompanies++;
@@ -447,7 +447,7 @@ export class AsoTeknoparkService {
    */
   async scrapeCompanies(): Promise<[number, number]> {
     try {
-      this.provider = await this.commonService.getProviderByCode('aso');
+      this.provider = await this.commonService.getProviderByCode('asoteknopark');
       const response = await this.commonService.fetchData(this.provider.website);
       this.rootHtml = cheerio.load(response.data);
       return await this.getCompanies();
@@ -469,9 +469,11 @@ export class AsoTeknoparkService {
     const companies = await this.parseCompanies();
 
     for (const company of companies) {
+      if (!company) continue;
+
       if (!existingCompanies.find((c) => c.name === company.name)) {
-        await this.commonService.createCompany(company, this.provider);
-        createdCompanies++;
+        const createdCompany = await this.commonService.createCompany(company, this.provider);
+        if (createdCompany) createdCompanies++;
       } else {
         const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
         if (isUpdated) updatedCompanies++;
@@ -498,6 +500,8 @@ export class AsoTeknoparkService {
     const parsedCompanies = await Promise.all(parsePromises);
 
     companies.push(...parsedCompanies);
+
+    console.log(companies);
 
     return companies;
   }
@@ -527,6 +531,88 @@ export class AsoTeknoparkService {
         sector: getSector(sector),
       },
     };
+
+    return company;
+  }
+}
+
+@Injectable()
+export class GaziUniversityService {
+  private provider: Provider;
+
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly commonService: CommonService,
+  ) {}
+
+  /**
+   * Scrapes the companies and saves them to the database
+   * @returns The number of created and updated companies
+   */
+  async scrapeCompanies(): Promise<[number, number]> {
+    try {
+      this.provider = await this.commonService.getProviderByCode('gaziuniversity');
+      const response = await this.commonService.fetchData(this.provider.website);
+      return await this.getCompanies(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCompanies(response: AxiosResponse): Promise<[number, number]> {
+    let createdCompanies: number = 0;
+    let updatedCompanies: number = 0;
+
+    const existingCompanies = await this.prismaService.company.findMany();
+
+    const companies = await this.parseCompanies(response);
+
+    for (const company of companies) {
+      if (!existingCompanies.find((c) => c.name === company.name)) {
+        const createdCompany = await this.commonService.createCompany(company, this.provider);
+        if (createdCompany) createdCompanies++;
+      } else {
+        const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
+        if (isUpdated) updatedCompanies++;
+      }
+    }
+
+    return [createdCompanies, updatedCompanies];
+  }
+
+  async parseCompanies(response: AxiosResponse): Promise<Company[]> {
+    const companies: Company[] = [];
+    const companiesList = [];
+
+    for (const part of response.data.data) {
+      const companies = part['unitUi'];
+
+      companiesList.push(...companies);
+    }
+
+    for (const companyData of companiesList) {
+      const company = await this.parseCompany(companyData.unit);
+      companies.push(company);
+    }
+
+    return companies;
+  }
+
+  async parseCompany(companyData: any): Promise<Company> {
+    const company: Company = {
+      name: companyData.name,
+      website: companyData.description,
+      contact: {
+        address: undefined,
+        email: undefined,
+        phone: undefined,
+      },
+      details: {
+        sector: undefined,
+      },
+    };
+
+    console.log(companyData.name);
 
     return company;
   }
