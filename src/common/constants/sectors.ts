@@ -33,9 +33,11 @@ const sectorAliases: { [key: string]: Sector } = {
   Metal: Sector['Otomotiv, Makine ve Techizat İmalatı'],
   Yazılım: Sector['Bilgisayar ve İletişim Teknolojileri'],
   Bilgisayar: Sector['Bilgisayar ve İletişim Teknolojileri'],
+  'Savunma Sanayi': Sector['Savunma Sanayi ve Havacılık'],
 };
 
 export const getSector = (sector: string): Sector => {
+  if (sector.includes(',')) sector = sector.split(',')[0];
   if (Sector[sector]) return Sector[sector];
   if (sectorAliases[sector]) return sectorAliases[sector];
   return Sector['Diğer'];
