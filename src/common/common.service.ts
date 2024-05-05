@@ -146,4 +146,20 @@ export class CommonService {
       .map((word) => word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr'))
       .join(' ');
   }
+
+  normalizeCompany(company: Company): PrismaCompany {
+    const prismaCompany: PrismaCompany = {
+      name: this.formatName(company.name),
+      website: this.formatWebsiteUrl(company.website),
+      address: company.contact.address,
+      email: company.contact.email,
+      phone: this.formatPhoneNumber(company.contact.phone),
+      sector: company.details.sector,
+      providerId: undefined, // Not known
+      active: undefined, // Not known
+      id: undefined, // Not known
+    };
+
+    return prismaCompany;
+  }
 }
