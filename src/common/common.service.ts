@@ -22,17 +22,17 @@ export class CommonService {
   ) {}
 
   async fetchData(url: string): Promise<AxiosResponse> {
-    const response = await this.httpService.axiosRef.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-      },
-    });
+    try {
+      const response = await this.httpService.axiosRef.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+        },
+      });
 
-    if (response.status !== 200) {
-      throw new Error('Failed to fetch data');
+      return response;
+    } catch (error) {
+      throw new Error(error.message);
     }
-
-    return response;
   }
 
   async getProviderByCode(code: string): Promise<Provider> {
