@@ -501,8 +501,6 @@ export class AsoTeknoparkService {
 
     companies.push(...parsedCompanies);
 
-    console.log(companies);
-
     return companies;
   }
 
@@ -611,8 +609,6 @@ export class GaziUniversityService {
         sector: undefined,
       },
     };
-
-    console.log(companyData.name);
 
     return company;
   }
