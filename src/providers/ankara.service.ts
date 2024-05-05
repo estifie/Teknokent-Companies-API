@@ -65,7 +65,7 @@ export class OdtuService {
         },
       };
 
-      if (!existingCompanies.find((c) => c.name === company.name)) {
+      if (!existingCompanies.find((c) => c.name.toLocaleUpperCase('tr-TR') === company.name.toLocaleUpperCase('tr-TR'))) {
         const createdCompany = await this.commonService.createCompany(company, this.provider);
         if (createdCompany) createdCompanies++;
       } else {
@@ -123,7 +123,7 @@ export class HacettepeService {
       const companies = await this.parseSections(sectionData, sector);
 
       for (const company of companies) {
-        if (!existingCompanies.find((c) => c.name === company.name)) {
+        if (!existingCompanies.find((c) => c.name.toLocaleUpperCase('tr-TR') === company.name.toLocaleUpperCase('tr-TR'))) {
           const createdCompany = await this.commonService.createCompany(company, this.provider);
           if (createdCompany) createdCompanies++;
         } else {
@@ -256,7 +256,7 @@ export class AnkaraUniversityService {
     const companies = await this.parseCompanies();
 
     for (const company of companies) {
-      if (!existingCompanies.find((c) => c.name === company.name)) {
+      if (!existingCompanies.find((c) => c.name.toLocaleUpperCase('tr-TR') === company.name.toLocaleUpperCase('tr-TR'))) {
         const createdCompany = await this.commonService.createCompany(company, this.provider);
         if (createdCompany) createdCompanies++;
       } else {
@@ -373,7 +373,7 @@ export class TeknoparkAnkaraService {
     const companies = await this.parseCompanies();
 
     for (const company of companies) {
-      if (!existingCompanies.find((c) => c.name === company.name)) {
+      if (!existingCompanies.find((c) => c.name.toLocaleUpperCase('tr-TR') === company.name.toLocaleUpperCase('tr-TR'))) {
         await this.commonService.createCompany(company, this.provider);
         createdCompanies++;
       } else {
@@ -471,7 +471,7 @@ export class AsoTeknoparkService {
     for (const company of companies) {
       if (!company) continue;
 
-      if (!existingCompanies.find((c) => c.name === company.name)) {
+      if (!existingCompanies.find((c) => c.name.toLocaleUpperCase('tr-TR') === company.name.toLocaleUpperCase('tr-TR'))) {
         const createdCompany = await this.commonService.createCompany(company, this.provider);
         if (createdCompany) createdCompanies++;
       } else {
@@ -568,7 +568,7 @@ export class GaziUniversityService {
     const companies = await this.parseCompanies(response);
 
     for (const company of companies) {
-      if (!existingCompanies.find((c) => c.name === company.name)) {
+      if (!existingCompanies.find((c) => c.name.toLocaleUpperCase('tr-TR') === company.name.toLocaleUpperCase('tr-TR'))) {
         const createdCompany = await this.commonService.createCompany(company, this.provider);
         if (createdCompany) createdCompanies++;
       } else {

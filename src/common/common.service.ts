@@ -71,7 +71,7 @@ export class CommonService {
     try {
       let isUpdated: boolean = false;
 
-      const existingCompany = existingCompanies.find((c) => c.name === company.name);
+      const existingCompany = existingCompanies.find((c) => c.name.toLocaleLowerCase('tr-TR') === company.name.toLocaleLowerCase('tr-TR'));
       if (!existingCompany) return;
 
       const companyUpdateDto: CompanyUpdateDto = {
@@ -143,7 +143,7 @@ export class CommonService {
   formatName(name: string): string {
     return name
       .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr'))
       .join(' ');
   }
 }
