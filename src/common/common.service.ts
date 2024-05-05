@@ -114,10 +114,9 @@ export class CommonService {
     return phoneNumber;
   }
 
-  formatWebsiteUrl(website: string): string {
-    // input can be xyz.com, www.xyz.com, Xyz.com, http://xyz.com
-    // Turn all of these into https://www.xyz.com
+  formatWebsiteUrl(website: string): string | undefined {
     if (!website) return website;
+    if (website.includes('@') || website.includes('mailto:')) return undefined;
 
     website = website.trim().toLowerCase();
 
