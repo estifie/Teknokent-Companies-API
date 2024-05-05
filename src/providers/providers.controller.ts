@@ -1,7 +1,15 @@
 import { Controller, Get, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Response } from '../common/interfaces';
 import { ProviderNotFoundException } from '../exceptions';
-import { AnkaraUniversityService, AsoTeknoparkService, GaziUniversityService, HacettepeService, OdtuService, TeknoparkAnkaraService } from './ankara.service';
+import {
+  AnkaraUniversityService,
+  AsoTeknoparkService,
+  GaziUniversityService,
+  HacettepeService,
+  OdtuService,
+  OstimTeknoparkService,
+  TeknoparkAnkaraService,
+} from './ankara.service';
 
 @Controller('providers')
 export class ProvidersController {
@@ -12,6 +20,7 @@ export class ProvidersController {
     private readonly teknoparkAnkaraService: TeknoparkAnkaraService,
     private readonly asoTeknoparkService: AsoTeknoparkService,
     private readonly gaziUniversityService: GaziUniversityService,
+    private readonly ostimTeknoparkService: OstimTeknoparkService,
   ) {}
 
   @Get('odtu')
@@ -183,6 +192,39 @@ export class ProvidersController {
   async scrapeGaziUniversityCompanies() {
     try {
       const [createdCompanies, updatedCompanies] = await this.gaziUniversityService.scrapeCompanies();
+
+      const response: Response = {
+        status: 'success',
+        data: {
+          createdCompanies,
+          updatedCompanies,
+        },
+      };
+
+      return response;
+    } catch (error) {
+      const response: Response = {
+        status: 'error',
+        message: undefined,
+      };
+      switch (error.constructor) {
+        case ProviderNotFoundException:
+          response.message = error.message;
+          throw new NotFoundException(response);
+        case Error:
+          response.message = error.message;
+          throw new InternalServerErrorException(response);
+        default:
+          response.message = error.message;
+          throw new InternalServerErrorException(response);
+      }
+    }
+  }
+
+  @Get('ostimteknopark')
+  async scrapeOstimTeknoparkCompanies() {
+    try {
+      const [createdCompanies, updatedCompanies] = await this.ostimTeknoparkService.scrapeCompanies();
 
       const response: Response = {
         status: 'success',

@@ -535,6 +535,123 @@ export class AsoTeknoparkService {
 }
 
 @Injectable()
+export class OstimTeknoparkService {
+  private rootHtml: cheerio.CheerioAPI;
+  private provider: Provider;
+
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly commonService: CommonService,
+  ) {}
+
+  /**
+   * Scrapes the companies and saves them to the database
+   * @returns The number of created and updated companies
+   */
+  async scrapeCompanies(): Promise<[number, number]> {
+    try {
+      this.provider = await this.commonService.getProviderByCode('ostimteknopark');
+      const response = await this.commonService.fetchData(this.provider.website);
+      this.rootHtml = cheerio.load(response.data);
+      return await this.getCompanies();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Gets the companies
+   * @returns The number of created companies
+   */
+  async getCompanies(): Promise<[number, number]> {
+    let createdCompanies: number = 0;
+    let updatedCompanies: number = 0;
+
+    const existingCompanies = await this.prismaService.company.findMany();
+
+    const companies = await this.parseCompanies();
+
+    for (const company of companies) {
+      if (!company) continue;
+      if (!existingCompanies.find((c) => c.name.toLocaleLowerCase('tr-TR') === company.name.toLocaleLowerCase('tr-TR'))) {
+        const createdCompany = await this.commonService.createCompany(company, this.provider);
+        if (createdCompany) createdCompanies++;
+      } else {
+        const isUpdated = await this.commonService.updateCompany(company, existingCompanies);
+        if (isUpdated) updatedCompanies++;
+      }
+    }
+
+    return [createdCompanies, updatedCompanies];
+  }
+
+  /**
+   * Parses the companies
+   * @returns The companies
+   */
+  async parseCompanies(): Promise<Company[]> {
+    const companiesData = this.rootHtml('div.new');
+
+    const promises = [];
+
+    for (const companyData of companiesData) {
+      promises.push(this.parseCompany(companyData));
+    }
+
+    const parsedCompanies = await Promise.all(promises);
+
+    return parsedCompanies;
+  }
+
+  /**
+   * Parses the company
+   * @returns The company
+   */
+  async parseCompany(companyData: cheerio.Element): Promise<Company> {
+    const companyHtml = this.rootHtml(companyData);
+
+    const name = companyHtml.find('span.title').text();
+    const detailsUrl = companyHtml.find('a').attr('href');
+    let detailsResponse: AxiosResponse;
+
+    try {
+      // Fetch the company details
+      detailsResponse = await this.commonService.fetchData(detailsUrl);
+    } catch (error) {
+      return undefined;
+    }
+
+    if (detailsResponse.status !== 200) {
+      return undefined;
+    }
+
+    const detailsHtml = cheerio.load(detailsResponse.data);
+
+    // If any i.bi-phone, next is the phone number
+    const phone = detailsHtml('i.bi-phone').parent().text().trim();
+    const email = detailsHtml('i.bi-envelope').parent().text().trim();
+    const address = detailsHtml('i.bi-geo-alt').parent().text().trim();
+    const website = detailsHtml('i.bi-link-45deg').parent().text().trim();
+    const sector = detailsHtml('i.bi-check').parent().text().trim();
+
+    const company: Company = {
+      name: name,
+      website: website,
+      contact: {
+        address: address,
+        email: email,
+        phone: phone,
+      },
+      details: {
+        sector: getSector(sector),
+      },
+    };
+
+    return company;
+  }
+}
+
+@Injectable()
 export class GaziUniversityService {
   private provider: Provider;
 

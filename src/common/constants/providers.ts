@@ -59,4 +59,14 @@ export const PROVIDERS = [
     phone: '(312) 484 88 53',
     address: 'Bahçelievler Mah. 323/1 Cad. Gazi Üniversitesi Teknokent Binası A Blok No: 10/50A/40 06830 Gölbaşı/Ankara',
   },
+  {
+    code: 'ostimteknopark',
+    website: 'https://ostimteknopark.com.tr/tr/firmalar-119',
+    shortTitle: 'Ostim Teknopark',
+    fullTitle: 'Ostim Ekopark Teknoloji Geliştirme Bölgesi',
+    cityId: 6,
+    email: 'tgb_ankaraostimteknopark@ostimteknopark.com.tr',
+    phone: '(312) 386 37 07',
+    address: 'Ostim OSB Mahallesi Cevat Dündar Caddesi No: 1/1/1 06370 Yenimahalle/Ankara',
+  },
 ];
