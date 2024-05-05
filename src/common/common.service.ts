@@ -68,6 +68,8 @@ export class CommonService {
   }
 
   async updateCompany(company: Company, existingCompanies: PrismaCompany[]): Promise<boolean> {
+    const skippedFields = ['id', 'providerId', 'active'];
+
     try {
       let isUpdated: boolean = false;
 
@@ -80,10 +82,22 @@ export class CommonService {
 
       const existingCompanyFields = Object.keys(existingCompany);
       existingCompanyFields.forEach((field) => {
-        if (field === 'id' || field === 'providerCode') return;
-        if (existingCompany[field] === company[field]) return;
-        if (company[field] === null || company[field] === undefined || company[field] === '') return;
-        companyUpdateDto.updateFields[field] = company[field];
+        if (field === 'phone') {
+          company[field] = this.formatPhoneNumber(company[field]);
+        }
+
+        if (field === 'website') {
+          company[field] = this.formatWebsiteUrl(company[field]);
+        }
+
+        // Normalization is needed for comparison
+        const normalizedCompany = this.normalizeCompany(company);
+
+        if (skippedFields.includes(field)) return;
+        if (existingCompany[field] === normalizedCompany[field]) return;
+
+        if (normalizedCompany[field] === null || normalizedCompany[field] === undefined || normalizedCompany[field] === '') return;
+        companyUpdateDto.updateFields[field] = normalizedCompany[field];
       });
 
       if (Object.keys(companyUpdateDto.updateFields).length > 0) {
