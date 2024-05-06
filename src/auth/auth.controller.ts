@@ -1,81 +1,23 @@
-import { Body, ConflictException, Controller, InternalServerErrorException, NotFoundException, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
+import { ConflictException, Controller, InternalServerErrorException, Post } from '@nestjs/common';
+import { UserCreationException } from '../common/exceptions';
 import { Response } from '../common/interfaces';
-import { UserCreateDto, UserLoginDto, UserResponseDto } from '../dto';
-import { UserAuthenticationException, UserCreationException, UserNotFoundException } from '../exceptions';
 import { AuthService } from './auth.service';
-import { RoleGuard } from './guards/role.guard';
 
 @Controller('auth')
-/**
- * Controller responsible for handling authentication-related requests.
- *
- * @remarks
- * This controller provides endpoints for user authentication and user creation.
- */
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  /**
-   * Handles the login request.
-   *
-   * @param userLoginDto - The user login data.
-   * @returns A promise that resolves to the user response data.
-   * @throws `NotFoundException` if the user is not found.
-   * @throws `UnauthorizedException` if the user authentication fails.
-   * @throws `InternalServerErrorException` for any other internal server errors.
-   */
-  @Post('/login')
-  // Write swagger example request and response
-  @ApiBody({
-    type: UserLoginDto,
-    examples: {
-      admin: {
-        value: {
-          username: 'admin',
-          password: 'admin',
-        },
-      },
-    },
-  })
-  async login(@Body() userLoginDto: UserLoginDto): Promise<UserResponseDto> {
-    try {
-      return await this.authService.login(userLoginDto);
-    } catch (error) {
-      const response: Response = {
-        status: 'error',
-        message: undefined,
-      };
-      switch (error.constructor) {
-        case UserNotFoundException:
-          response.message = error.message;
-          throw new NotFoundException(response);
-        case UserAuthenticationException:
-          response.message = error.message;
-          throw new UnauthorizedException(response);
-        default:
-          response.message = error.message;
-          throw new InternalServerErrorException(response);
-      }
-    }
-  }
-
-  /**
-   * Handles the user creation request.
-   *
-   * @param userCreateDto - The user creation data.
-   * @returns A promise that resolves to the user response data.
-   * @throws `ConflictException` if there is a conflict during user creation.
-   * @throws `InternalServerErrorException` for any other internal server errors.
-   * @remarks
-   * This endpoint is guarded by the `RoleGuard`.
-   * Only users with the `admin` role can access this endpoint.
-   */
   @Post('/')
-  @UseGuards(RoleGuard)
-  async createUser(@Body() userCreateDto: UserCreateDto): Promise<UserResponseDto> {
+  async createUser(): Promise<Response> {
     try {
-      return await this.authService.createUser(userCreateDto);
+      const data = await this.authService.createUser();
+
+      const response: Response = {
+        status: 'success',
+        data: data,
+      };
+
+      return response;
     } catch (error) {
       const response: Response = {
         status: 'error',

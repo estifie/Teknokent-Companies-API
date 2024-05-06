@@ -3,12 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { Company as PrismaCompany, Provider } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ProviderNotFoundException } from '../common/exceptions';
+import { CompanyCreationException } from '../common/exceptions/company.exceptions';
 import { Company } from '../common/interfaces';
 import { CompanyService } from '../company/company.service';
-import { CompanyCreateDto } from '../dto';
-import { CompanyUpdateDto } from '../dto/company/company-update.dto';
-import { ProviderNotFoundException } from '../exceptions';
-import { CompanyCreationException } from '../exceptions/company.exceptions';
+import { CompanyCreateDto } from './dto';
+import { CompanyUpdateDto } from './dto/company/company-update.dto';
 
 /**
  * Common functions and utilities that can be used across the application.

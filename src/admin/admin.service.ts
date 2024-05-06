@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Provider } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ProviderCreateDto, ProviderSetStatusDto, ProviderUpdateDto } from '../dto';
-import { ProviderCreationException, ProviderDeletionException, ProviderNotFoundException, ProviderUpdateException } from '../exceptions';
+import { ProviderCreateDto, ProviderSetStatusDto, ProviderUpdateDto } from '../common/dto';
+import { ProviderCreationException, ProviderDeletionException, ProviderNotFoundException, ProviderUpdateException } from '../common/exceptions';
 
 @Injectable()
 export class AdminService {

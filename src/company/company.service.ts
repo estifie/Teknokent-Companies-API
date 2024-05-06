@@ -2,10 +2,10 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { Company } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CompanyCreateDto } from '../dto';
-import { CompanyUpdateDto } from '../dto/company/company-update.dto';
-import { ProviderNotFoundException } from '../exceptions';
-import { CompanyNotFoundException, CompanyUpdateException } from '../exceptions/company.exceptions';
+import { CompanyCreateDto } from '../common/dto';
+import { CompanyUpdateDto } from '../common/dto/company/company-update.dto';
+import { ProviderNotFoundException } from '../common/exceptions';
+import { CompanyNotFoundException, CompanyUpdateException } from '../common/exceptions/company.exceptions';
 
 /**
  * Common functions and utilities that can be used across the application.

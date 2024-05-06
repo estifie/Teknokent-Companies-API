@@ -1,7 +1,5 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RouterModule } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AdminModule } from './admin/admin.module';
@@ -22,10 +20,6 @@ import { ProvidersModule } from './providers/providers.module';
       envFilePath: ['.env', '.env.development'],
       isGlobal: true,
     }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRATION_TIME },
-    }),
     // For serving static files
     ServeStaticModule.forRoot({
       // Added 1 more '..' to go back from 'dist' folder
@@ -40,10 +34,6 @@ import { ProvidersModule } from './providers/providers.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes(`admin/*`);
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: `auth/`,
-      method: RequestMethod.POST,
-    });
+    consumer.apply(AuthMiddleware).exclude({ path: 'auth', method: RequestMethod.POST }).forRoutes('*');
   }
 }

@@ -13,6 +13,4 @@ export { CompanyCreateDto } from './company/company-create.dto';
 /**
  * User DTOs
  */
-export { UserCreateDto } from './user/user-create.dto';
-export { UserLoginDto } from './user/user-login.dto';
-export { UserResponseDto } from './user/user-response.dto';
+export { UserCreateResponseDto } from './user/user-create-response.dto';

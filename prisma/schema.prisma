@@ -9,8 +9,9 @@ datasource db {
 
 model User {
   id       Int     @id @default(autoincrement())
-  username String  @unique
-  password String
+  apiKey            String   @unique
+  apiKeySecretHash  String   @unique
+  requests          Request[]
   role     String  @default("user")
   active   Boolean @default(true)
 }
@@ -40,4 +41,15 @@ model Company {
   providerId Int
   provider   Provider @relation(fields: [providerId], references: [id])
   active     Boolean  @default(true)
+}
+
+model Request {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      Int
+  field     String
+  oldValue  String
+  newValue  String
+  createdAt DateTime @default(now())
 }

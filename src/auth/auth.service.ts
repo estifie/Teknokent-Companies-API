@@ -1,77 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { prisma } from '../../prisma/prisma.service';
-import { UserCreateDto, UserLoginDto, UserResponseDto } from '../dto';
-import { UserAuthenticationException, UserCreationException, UserNotFoundException } from '../exceptions';
+import { randomBytes } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UserCreateResponseDto } from '../common/dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(private prismaService: PrismaService) {}
 
-  async login(userLoginDto: UserLoginDto): Promise<UserResponseDto> {
-    const user = await prisma.user.findUnique({
-      where: {
-        username: userLoginDto.username,
-      },
-    });
+  async createUser(): Promise<UserCreateResponseDto> {
+    try {
+      const apiKey = uuidv4();
+      const apiKeySecret = await this.createApiKeySecret();
+      const apiKeySecretHash = await this.createHash(apiKeySecret);
 
-    if (!user) {
-      throw new UserNotFoundException();
+      await this.prismaService.user.create({
+        data: {
+          apiKey,
+          apiKeySecretHash,
+          role: 'user',
+        },
+      });
+
+      return {
+        apiKey,
+        apiKeySecret,
+      };
+    } catch (error) {
+      throw new Error(error.message);
     }
-
-    const isPasswordValid = await bcrypt.compare(userLoginDto.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UserAuthenticationException('Invalid credentials');
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    const token = this.generateToken(result);
-
-    return {
-      ...result,
-      token,
-    };
   }
 
-  async createUser(userCreateDto: UserCreateDto): Promise<UserResponseDto> {
+  private async createApiKeySecret(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      randomBytes(32, (err, buffer) => {
+        if (err) {
+          reject(err);
+        }
+
+        resolve(buffer.toString('hex'));
+      });
+    });
+  }
+
+  private async createHash(secret: string): Promise<string> {
     const saltOrRounds = 10;
-    const hashedPassword = await bcrypt.hash(userCreateDto.password, saltOrRounds);
-
-    const userExists = await prisma.user.findUnique({
-      where: {
-        username: userCreateDto.username,
-      },
-    });
-
-    if (userExists) {
-      throw new UserCreationException('User already exists');
-    }
-
-    const user = await prisma.user.create({
-      data: {
-        username: userCreateDto.username,
-        password: hashedPassword,
-      },
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    const token = this.generateToken(result);
-
-    return {
-      ...result,
-      token,
-    };
-  }
-
-  private generateToken(user: any): string {
-    const payload = { username: user.username };
-    return this.jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: process.env.JWT_EXPIRATION_TIME,
-    });
+    return await bcrypt.hash(secret, saltOrRounds);
   }
 }

@@ -1,6 +1,6 @@
 import { Controller, Get, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ProviderNotFoundException } from '../common/exceptions';
 import { Response } from '../common/interfaces';
-import { ProviderNotFoundException } from '../exceptions';
 import {
   AnkaraUniversityService,
   AsoTeknoparkService,

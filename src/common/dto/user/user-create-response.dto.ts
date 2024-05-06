@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UserResponseDto {
+export class UserCreateResponseDto {
   @IsNotEmpty()
   @IsString()
-  readonly username: string;
+  readonly apiKey: string;
 
   @IsNotEmpty()
   @IsString()
-  readonly token: string;
+  readonly apiKeySecret: string;
 }
