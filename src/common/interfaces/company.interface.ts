@@ -8,6 +8,5 @@ export interface Company {
   };
   details: {
     sector: number | undefined;
-    // TODO: string support will be removed in the future
   };
 }
