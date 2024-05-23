@@ -1,5 +1,5 @@
-import { Controller, Get, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { ProviderNotFoundException } from '../common/exceptions';
+import { Controller, Get, InternalServerErrorException, NotFoundException, Query } from '@nestjs/common';
+import { CompaniesFetchException } from '../common/exceptions/company.exceptions';
 import { Response } from '../common/interfaces';
 import { CompanyService } from './company.service';
 
@@ -8,9 +8,9 @@ export class ProvidersController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Get('/')
-  async getAllCompanies() {
+  async getCompanies(@Query('cityId') cityId: number, @Query('providerId') providerId: number): Promise<Response> {
     try {
-      const companies = await this.companyService.getAllCompanies();
+      const companies = await this.companyService.getCompanies(cityId, providerId);
 
       const response: Response = {
         status: 'success',
@@ -24,7 +24,7 @@ export class ProvidersController {
         message: undefined,
       };
       switch (error.constructor) {
-        case ProviderNotFoundException:
+        case CompaniesFetchException:
           response.message = error.message;
           throw new NotFoundException(response);
         case Error:

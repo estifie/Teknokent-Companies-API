@@ -5,6 +5,13 @@ export class CompanyNotFoundException extends Error {
   }
 }
 
+export class CompaniesFetchException extends Error {
+  constructor(message?: string) {
+    super(message || 'Error fetching companies');
+    this.name = 'CompaniesFetchException';
+  }
+}
+
 export class CompanyCreationException extends Error {
   constructor(message?: string) {
     super(message || 'Error creating company');

@@ -5,7 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CompanyCreateDto } from '../common/dto';
 import { CompanyUpdateDto } from '../common/dto/company/company-update.dto';
 import { ProviderNotFoundException } from '../common/exceptions';
-import { CompanyNotFoundException, CompanyUpdateException } from '../common/exceptions/company.exceptions';
+import { CompaniesFetchException, CompanyNotFoundException, CompanyUpdateException } from '../common/exceptions/company.exceptions';
 
 /**
  * Common functions and utilities that can be used across the application.
@@ -21,13 +21,22 @@ export class CompanyService {
    * Retrieve all companies
    * @returns A promise that resolves to an array of companies
    */
-  async getAllCompanies(): Promise<Company[]> {
+  async getCompanies(cityId?: number, providerId?: number): Promise<Company[]> {
     try {
-      const companies = await this.prismaService.company.findMany();
+      // cityId is in providerId's params
+
+      const companies = await this.prismaService.company.findMany({
+        where: {
+          provider: {
+            cityId: cityId || undefined,
+            id: providerId || undefined,
+          },
+        },
+      });
 
       return companies;
     } catch (error) {
-      throw new Error(error.message);
+      throw new CompaniesFetchException();
     }
   }
 
